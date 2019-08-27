@@ -35,6 +35,9 @@ class PlexAuth():
             'clientID': self._client_identifier,
             'code': self._code,
         }
+        if forward_url:
+            parameters['forwardUrl'] = urllib.parse.urlencode(forward_url)
+
         url = AUTH_URL.format(urllib.parse.urlencode(parameters))
         return url
 
