@@ -1,2 +1,7 @@
-__pycache__/
+**/__pycache__/
 *.pyc
+plexauth.egg-info
+
+# Build files
+build/
+dist/
