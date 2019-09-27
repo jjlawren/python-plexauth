@@ -18,10 +18,10 @@ PAYLOAD = {
 }
 
 async def main():
-    plexauth = PlexAuth(PAYLOAD)
-    await plexauth.initiate_auth()
-    print("Complete auth at URL: {}".format(plexauth.auth_url()))
-    token = await plexauth.token()
+    async with PlexAuth(PAYLOAD) as plexauth:
+        await plexauth.initiate_auth()
+        print("Complete auth at URL: {}".format(plexauth.auth_url()))
+        token = await plexauth.token()
     
     if token:
         print("Token: {}".format(token))
