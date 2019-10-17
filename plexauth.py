@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import urllib.parse
 import uuid
 
-__version__ = '0.0.3'
+__version__ = '0.0.5'
 
 CODES_URL = 'https://plex.tv/api/v2/pins.json?strong=true'
 AUTH_URL = 'https://app.plex.tv/auth#!?{}'
@@ -15,11 +15,11 @@ class PlexAuth():
 
     def __init__(self, payload, session=None):
         '''Create PlexAuth instance.'''
-        self._client_identifier = str(uuid.uuid4())
+        self.client_identifier = str(uuid.uuid4())
         self._code = None
         self._identifier = None
         self._payload = payload
-        self._payload['X-Plex-Client-Identifier'] = self._client_identifier
+        self._payload['X-Plex-Client-Identifier'] = self.client_identifier
 
         self._local_session = False
         self._session = session
@@ -37,7 +37,7 @@ class PlexAuth():
     def auth_url(self, forward_url=None):
         '''Return an auth URL for the user to follow.'''
         parameters = {
-            'clientID': self._client_identifier,
+            'clientID': self.client_identifier,
             'code': self._code,
         }
         if forward_url:
