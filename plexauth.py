@@ -13,10 +13,11 @@ TOKEN_URL = 'https://plex.tv/api/v2/pins/{}'
 
 class PlexAuth():
 
-    def __init__(self, payload, session=None):
+    def __init__(self, payload, session=None, headers=None):
         '''Create PlexAuth instance.'''
         self.client_identifier = str(uuid.uuid4())
         self._code = None
+        self._headers = headers
         self._identifier = None
         self._payload = payload
         self._payload['X-Plex-Client-Identifier'] = self.client_identifier
@@ -29,7 +30,7 @@ class PlexAuth():
 
     async def initiate_auth(self):
         '''Request codes needed to create an auth URL. Starts external timeout.'''
-        async with self._session.post(CODES_URL, data=self._payload) as resp:
+        async with self._session.post(CODES_URL, data=self._payload, headers=self._headers) as resp:
             response = await resp.json()
             self._code = response['code']
             self._identifier = response['id']
