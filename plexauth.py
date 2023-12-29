@@ -1,9 +1,12 @@
 """Handle a Plex.tv authorization flow to obtain an access token."""
-import aiohttp
-from asyncio import sleep
-from datetime import datetime, timedelta
+
 import urllib.parse
 import uuid
+from asyncio import sleep
+from datetime import datetime, timedelta
+from typing import Any, Dict, Optional
+
+import aiohttp
 
 __version__ = '0.0.5'
 
