@@ -67,7 +67,7 @@ class PlexAuth:
             TOKEN_URL.format(self._identifier), headers=payload
         ) as resp:
             response = await resp.json()
-            token = response["authToken"]
+            token: str = response["authToken"]
             return token
 
     async def token(self, timeout: int = 60):
