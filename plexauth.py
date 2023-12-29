@@ -8,60 +8,70 @@ from typing import Any, Dict, Optional
 
 import aiohttp
 
-__version__ = '0.0.5'
+__version__ = "0.0.5"
 
-CODES_URL = 'https://plex.tv/api/v2/pins.json?strong=true'
-AUTH_URL = 'https://app.plex.tv/auth#!?{}'
-TOKEN_URL = 'https://plex.tv/api/v2/pins/{}'
+CODES_URL = "https://plex.tv/api/v2/pins.json?strong=true"
+AUTH_URL = "https://app.plex.tv/auth#!?{}"
+TOKEN_URL = "https://plex.tv/api/v2/pins/{}"
 
-class PlexAuth():
 
-    def __init__(self, payload, session=None, headers=None):
-        '''Create PlexAuth instance.'''
+class PlexAuth:
+    def __init__(
+        self,
+        payload: Dict[str, str],
+        session: Optional[aiohttp.ClientSession] = None,
+        headers: Any = None,
+    ):
+        """Create PlexAuth instance."""
         self.client_identifier = str(uuid.uuid4())
         self._code = None
         self._headers = headers
         self._identifier = None
         self._payload = payload
-        self._payload['X-Plex-Client-Identifier'] = self.client_identifier
+        self._payload["X-Plex-Client-Identifier"] = self.client_identifier
 
         self._local_session = False
-        self._session = session
         if session is None:
-            self._session = aiohttp.ClientSession()
+            session = aiohttp.ClientSession()
             self._local_session = True
+        self._session = session
 
     async def initiate_auth(self):
-        '''Request codes needed to create an auth URL. Starts external timeout.'''
-        async with self._session.post(CODES_URL, data=self._payload, headers=self._headers) as resp:
+        """Request codes needed to create an auth URL.
+        Starts external timeout.
+        """
+        async with self._session.post(
+            CODES_URL, data=self._payload, headers=self._headers
+        ) as resp:
             response = await resp.json()
-            self._code = response['code']
-            self._identifier = response['id']
+            self._code = response["code"]
+            self._identifier = response["id"]
 
-    def auth_url(self, forward_url=None):
-        '''Return an auth URL for the user to follow.'''
+    def auth_url(self, forward_url: Optional[str] = None):
+        """Return an auth URL for the user to follow."""
         parameters = {
-            'clientID': self.client_identifier,
-            'code': self._code,
+            "clientID": self.client_identifier,
+            "code": self._code,
         }
         if forward_url:
-            parameters['forwardUrl'] = forward_url
+            parameters["forwardUrl"] = forward_url
 
         url = AUTH_URL.format(urllib.parse.urlencode(parameters))
         return url
 
     async def request_auth_token(self):
-        '''Request an auth token from Plex.'''
-        token_url = TOKEN_URL.format(self._code)
+        """Request an auth token from Plex."""
         payload = dict(self._payload)
-        payload['Accept'] = 'application/json'
-        async with self._session.get(TOKEN_URL.format(self._identifier), headers=payload) as resp:
+        payload["Accept"] = "application/json"
+        async with self._session.get(
+            TOKEN_URL.format(self._identifier), headers=payload
+        ) as resp:
             response = await resp.json()
-            token = response['authToken']
+            token = response["authToken"]
             return token
 
-    async def token(self, timeout=60):
-        '''Poll Plex endpoint until a token is retrieved or times out.'''
+    async def token(self, timeout: int = 60):
+        """Poll Plex endpoint until a token is retrieved or times out."""
         token = None
         wait_until = datetime.now() + timedelta(seconds=timeout)
         break_loop = False
@@ -82,6 +92,6 @@ class PlexAuth():
         """Async enter."""
         return self
 
-    async def __aexit__(self, *exc_info):
+    async def __aexit__(self, *_):
         """Async exit."""
         await self.close()
